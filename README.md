@@ -1,4 +1,4 @@
-# GamePass_PsNow_Checker
+# GamePass PsNow Checker
 A simple browser extension that automatically checks whether or not a steam game is included in XBOX GamePass and/or PSNow.
 
 # Installation
