@@ -4,5 +4,5 @@ A simple browser extension that automatically checks whether or not a steam game
 # Installation
 Open the .crx file under build folder with a compatible browser and follow the installation steps. Make sure the extension is enabled after installation.
 
-#Usage
+# Usage
 The extension will scrape necessary data whenever a steam product page is viewed and display the results right above purchase panel.
