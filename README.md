@@ -6,3 +6,8 @@ Open the .crx file under build folder with a compatible browser and follow the i
 
 # Usage
 The extension will scrape necessary data whenever a steam product page is viewed and display the results right above purchase panel.
+
+![Tutorial Image1](https://github.com/Redscott61/GamePass-PsNow-Checker/blob/master/images/img1.png)
+
+![Tutorial Image2](https://github.com/Redscott61/GamePass-PsNow-Checker/blob/master/images/img2.png)
+
