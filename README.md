@@ -9,6 +9,5 @@ The extension will scrape necessary data whenever a steam product page is viewed
 
 ![Tutorial Image1](https://github.com/Redscott61/GamePass-PsNow-Checker/blob/master/images/img1.png)
 
-
-  https://github.com/Redscott61/GamePass-PsNow-Checker/blob/master/images/img2.png?raw=true
+![Tutorial Image2](https://github.com/Redscott61/GamePass-PsNow-Checker/blob/master/images/img2.png)
 
