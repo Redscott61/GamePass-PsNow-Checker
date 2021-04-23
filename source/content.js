@@ -1,4 +1,4 @@
-chrome.extension.onMessage.addListener(function (msg, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   const htmlParser = new DOMParser();
 
   const DOMObj = htmlParser.parseFromString(msg.data, "text/html");
