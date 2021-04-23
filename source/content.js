@@ -3,6 +3,8 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 
   const DOMObj = htmlParser.parseFromString(msg.data, "text/html");
 
+  const similarityThreshold = 0.9;
+
   //copy pasted from stackoverflow
   function editDistance(s1, s2) {
     s1 = s1.toLowerCase();
@@ -85,13 +87,13 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
           "c-subheading-6"
         )[0].innerHTML;
 
-        if (similarity(title, msg.trgt) > 0.75) {
+        if (similarity(title, msg.trgt) > similarityThreshold) {
           if (
             searchResults[i].getElementsByClassName("glyph-xbox-gamepass")
               .length > 0
           ) {
             console.log(
-              "[GP/PN-Checker]" + msg.trgt + "is available on gamepass"
+              "[GP/PN-Checker]" + title + " is available on gamepass"
             );
 
             let link = searchResults[i].getElementsByTagName("A")[0].href;
@@ -105,7 +107,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             const purchaseArea = document.getElementById("game_area_purchase");
 
             const linkElement = createAlertBox(
-              msg.trgt + " is available on XBOX GamePass",
+              title + " is available on XBOX GamePass",
               "#107C10",
               link
             );
@@ -139,9 +141,13 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
           let entries = table.getElementsByTagName("p");
 
           for (var i = 0; i < entries.length; i++) {
-            if (similarity(entries[i].innerHTML, msg.trgt) > 0.75) {
+            if (
+              similarity(entries[i].innerHTML, msg.trgt) > similarityThreshold
+            ) {
               console.log(
-                "[GP/PN-Checker]" + msg.trgt + "is available on psnow"
+                "[GP/PN-Checker]" +
+                  entries[i].innerHTML +
+                  " is available on psnow"
               );
 
               const purchaseArea = document.getElementById(
@@ -149,14 +155,15 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
               );
 
               const linkElement = createAlertBox(
-                msg.trgt + " is available on PSNow",
+                entries[i].innerHTML + " is available on PSNow",
                 "#0072CE",
                 "https://www.playstation.com/en-us/search/?category=games&q=" +
-                  msg.trgt
+                  entries[i].innerHTML
               );
               purchaseArea.insertBefore(linkElement, purchaseArea.firstChild);
 
               isFoundInPsNow = true;
+              break;
             }
           }
         } else {
