@@ -7,9 +7,11 @@ try {
       //make sure current address matches preUrl
       if (url.substring(0, preUrl.length) != preUrl) return;
 
+      //extract game name from url
       let gameName = url.substring(preUrl.length, url.length).split("/")[1];
       if (gameName.length < 1) return;
 
+      //replace underscores with spaces
       let gameNameSpaced = "";
       for (var i = 0; i < gameName.length; i++) {
         if (gameName[i] == "_") {

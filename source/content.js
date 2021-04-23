@@ -3,50 +3,26 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 
   const DOMObj = htmlParser.parseFromString(msg.data, "text/html");
 
-  const similarityThreshold = 0.9;
-
-  //copy pasted from stackoverflow
-  function editDistance(s1, s2) {
-    s1 = s1.toLowerCase();
-    s2 = s2.toLowerCase();
-
-    var costs = new Array();
-    for (var i = 0; i <= s1.length; i++) {
-      var lastValue = i;
-      for (var j = 0; j <= s2.length; j++) {
-        if (i == 0) costs[j] = j;
-        else {
-          if (j > 0) {
-            var newValue = costs[j - 1];
-            if (s1.charAt(i - 1) != s2.charAt(j - 1))
-              newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-            costs[j - 1] = lastValue;
-            lastValue = newValue;
-          }
-        }
+  //returns whether or not two game titles are the same while ignoring punctiation marks
+  function compareGameTitles(a, b) {
+    //replaces punctiation marks with spaces and returns as a new string
+    function getStringWithoutPunctiation(text) {
+      let res = "";
+      const punctiationChars = ["/", ":", ".", ",", "-", " "];
+      for (var i = 0; i < text.length; i++) {
+        punctiationChars.includes(text[i]) ? (res += "") : (res += text[i]);
       }
-      if (i > 0) costs[s2.length] = lastValue;
+      return res;
     }
-    return costs[s2.length];
-  }
 
-  function similarity(s1, s2) {
-    var longer = s1;
-    var shorter = s2;
-    if (s1.length < s2.length) {
-      longer = s2;
-      shorter = s1;
-    }
-    var longerLength = longer.length;
-    if (longerLength == 0) {
-      return 1.0;
-    }
-    return (
-      (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength)
-    );
+    //get rid of punctiation marks before comparing because publishers cant decide if its "half life" or "half-life"
+    return getStringWithoutPunctiation(a) == getStringWithoutPunctiation(b);
   }
 
   function createAlertBox(text, color, link) {
+    //find the panel steam uses to place purchase buttons on
+    const purchaseArea = document.getElementById("game_area_purchase");
+
     const linkElement = document.createElement("A");
     linkElement.href = link;
 
@@ -66,7 +42,8 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     alertDiv.appendChild(alertLabel);
 
     linkElement.appendChild(alertDiv);
-    return linkElement;
+
+    purchaseArea.insertBefore(linkElement, purchaseArea.firstChild);
   }
 
   switch (msg.source) {
@@ -86,8 +63,10 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
         const title = searchResults[i].getElementsByClassName(
           "c-subheading-6"
         )[0].innerHTML;
-
-        if (similarity(title, msg.trgt) > similarityThreshold) {
+        if (compareGameTitles(title, msg.trgt)) {
+          console.log(
+            title + " found in xboxstore. Checking for gamepass status."
+          );
           if (
             searchResults[i].getElementsByClassName("glyph-xbox-gamepass")
               .length > 0
@@ -104,15 +83,11 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
               "https://www.microsoft.com/" +
               link.substring(stringToRemove.length, link.length);
 
-            const purchaseArea = document.getElementById("game_area_purchase");
-
             const linkElement = createAlertBox(
               title + " is available on XBOX GamePass",
               "#107C10",
               link
             );
-
-            purchaseArea.insertBefore(linkElement, purchaseArea.firstChild);
 
             isFoundInGamePass = true;
           }
@@ -121,7 +96,9 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
       }
 
       if (!isFoundInGamePass) {
-        console.log("[GP/PN-Checker]" + msg.trgt + " is not found in gamePass");
+        console.log(
+          "[GP/PN-Checker]" + msg.trgt + " is not found in xbox store"
+        );
       }
       break;
     case "psnow":
@@ -130,6 +107,10 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
       console.log(
         "[GP/PN-Checker]" + "Searching for " + msg.trgt + " in psnow"
       );
+
+      //PsNow game list page contains severals divs that contain the data we want
+      //so loop through them till we find the game we are looking for
+
       let tableIndex = 1;
       while (true) {
         let table = DOMObj.getElementById(
@@ -141,26 +122,21 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
           let entries = table.getElementsByTagName("p");
 
           for (var i = 0; i < entries.length; i++) {
-            if (
-              similarity(entries[i].innerHTML, msg.trgt) > similarityThreshold
-            ) {
+            if (compareGameTitles(entries[i].innerHTML, msg.trgt)) {
               console.log(
                 "[GP/PN-Checker]" +
                   entries[i].innerHTML +
                   " is available on psnow"
               );
 
-              const purchaseArea = document.getElementById(
-                "game_area_purchase"
-              );
-
+              //the page we are scraping does not provide direct links to the product page,
+              //so just redirect user to a search page on psstore
               const linkElement = createAlertBox(
                 entries[i].innerHTML + " is available on PSNow",
                 "#0072CE",
                 "https://www.playstation.com/en-us/search/?category=games&q=" +
                   entries[i].innerHTML
               );
-              purchaseArea.insertBefore(linkElement, purchaseArea.firstChild);
 
               isFoundInPsNow = true;
               break;
