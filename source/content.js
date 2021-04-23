@@ -8,7 +8,29 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     //replaces punctiation marks with spaces and returns as a new string
     function getStringWithoutPunctiation(text) {
       let res = "";
-      const punctiationChars = ["/", ":", ".", ",", "-", " "];
+      const punctiationChars = [
+        "/",
+        ":",
+        ".",
+        ",",
+        "-",
+        " ",
+        "'",
+        '"',
+        "[",
+        "]",
+        "(",
+        ")",
+        "!",
+        ";",
+        "_",
+        "?",
+        "!",
+        "\\",
+        "^",
+        "$",
+        "+",
+      ];
       for (var i = 0; i < text.length; i++) {
         punctiationChars.includes(text[i]) ? (res += "") : (res += text[i]);
       }
